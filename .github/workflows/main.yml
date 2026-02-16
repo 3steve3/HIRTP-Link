@@ -11,9 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install HTML Converter
+        run: sudo apt-get update && sudo apt-get install -y aha
 
       - name: Build Docker images
         run: docker compose build
@@ -21,35 +25,41 @@ jobs:
       - name: Start services
         run: docker compose up -d
 
-      - name: Wait for simulation to run
-        run: sleep 120
+      - name: Run simulation and stream logs
+        run: |
+          docker compose logs -f --colors=always > simulation.log &
+          sleep 120
 
-      - name: Save simulation logs
-        run: docker compose logs > simulation.log
+      - name: Convert Logs to Pretty HTML
+        if: always()
+        run: |
+          cat simulation.log | aha --black > simulation.html
 
       - name: Cleanup containers
         if: always()
         run: docker compose down
 
-      # --- Release steps ---
       - name: Create GitHub Release
         id: create_release
+        if: always()
         uses: actions/create-release@v1
         with:
           tag_name: simulation-logs-${{ github.run_number }}
-          release_name: Simulation Logs
-          body: Logs from CI run
+          release_name: Simulation Logs (Run ${{ github.run_number }})
+          body: |
+            View the attached HTML file for colorized simulation logs.
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload simulation log to Release
+      - name: Upload Pretty HTML Log
+        if: always()
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: simulation.log
-          asset_name: simulation.log
-          asset_content_type: text/plain
+          asset_path: ./simulation.html
+          asset_name: simulation_logs.html
+          asset_content_type: text/html
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
