@@ -27,13 +27,22 @@ jobs:
 
       - name: Run simulation and stream logs
         run: |
-          docker compose logs -f --colors=always > simulation.log &
+          export COMPOSE_COLOR=1
+          stdbuf -oL docker compose logs -f > simulation.log &
+          LOGGER_PID=$!
+          
           sleep 120
+          
+          kill $LOGGER_PID || true
+          sleep 2
 
       - name: Convert Logs to Pretty HTML
         if: always()
         run: |
           cat simulation.log | aha --black > simulation.html
+          
+          ls -lh simulation.html
+          head -n 20 simulation.html
 
       - name: Cleanup containers
         if: always()
@@ -46,8 +55,7 @@ jobs:
         with:
           tag_name: simulation-logs-${{ github.run_number }}
           release_name: Simulation Logs (Run ${{ github.run_number }})
-          body: |
-            View the attached HTML file for colorized simulation logs.
+          body: "View the attached HTML file for colorized simulation logs."
           draft: false
           prerelease: false
         env:
