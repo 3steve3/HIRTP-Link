@@ -1,0 +1,15 @@
+# Ignore Rust build artifacts
+Client/target/
+
+# Ignore .NET build artifacts
+Server/bin/
+Server/obj/
+
+# Ignore local storage (so you don't upload the JADES image back to the server)
+server_storage/
+client_data/
+
+# Ignore git and IDE settings
+.git/
+.vscode/
+.idea/

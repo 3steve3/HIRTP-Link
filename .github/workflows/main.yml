@@ -1,0 +1,31 @@
+name: CI Build and Simulation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: docker-compose build
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for simulation to run
+        run: sleep 120 # Wait for 2 minutes
+
+      - name: Display simulation logs
+        run: docker-compose logs
+
+      - name: Cleanup containers
+        if: always()
+        run: docker-compose down

@@ -1,0 +1,22 @@
+services:
+  base-station:
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    container_name: base-station
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./server_storage:/app/Storage
+
+  remote-client:
+    build:
+      context: .
+      dockerfile: Client/Dockerfile
+    container_name: remote-client
+    depends_on:
+      - base-station
+    environment:
+      - SERVER_URL=http://base-station:50051
+    volumes:
+      - ./client_data:/app/pending

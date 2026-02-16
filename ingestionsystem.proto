@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package ingestionsystem;
+
+option csharp_namespace = "HIRTP_Link.Protos";
+
+service DataExchangeService {
+  rpc NegotiateStart (NegotiateRequest) returns (NegotiateResponse);
+  rpc TransmitData (stream DataTransmit) returns (stream DataTransmitResponse);
+}
+
+message NegotiateRequest {
+    bytes hash = 1;
+    NegotiateRequestPayload payload = 2;
+}
+
+message NegotiateRequestPayload {
+    bytes sha256_file_hash = 1;
+    uint64 total_file_size_bytes = 2; 
+    uint32 chunk_size = 3;         
+}
+
+message NegotiateResponse {
+    bytes hash = 1;
+    NegotiateResponsePayload payload = 2;
+}
+
+message NegotiateResponsePayload {
+    bool transfer_complete = 1;   
+    uint32 session_id = 2;        
+    repeated int32 missing_chunks = 3; 
+    uint32 start_at_chunk = 4;    
+}
+
+message DataTransmit {
+    bytes hash = 1;
+    DataTransmitPayload payload = 2;
+}
+
+message DataTransmitPayload {
+    uint32 session_id = 1;        
+    uint32 chunk_number = 2;      
+    bytes data = 3;              
+}
+
+message DataTransmitResponse {
+    bytes hash = 1;
+    DataTransmitResponsePayload payload = 2;
+}
+
+message DataTransmitResponsePayload {
+    uint32 chunk_number = 1;      
+    bool ack = 2;                
+    uint32 session_id = 3; 
+}
