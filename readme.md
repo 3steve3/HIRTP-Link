@@ -66,7 +66,7 @@ remote-client  | [jades4.tif] Verified by Server. Deleting local copy.
 
 **Base Station (C# Server)**
 
-- Framework: ASP.NET Core 9.0, compiled with Native AOT for a small, self-contained native binary.  
+- Framework: ASP.NET Core 10.0, compiled with Native AOT for a small, self-contained native binary.  
 - Storage: Manages chunk-based storage and atomic reassembly of final files.  
 - State: Uses a ConcurrentDictionary to manage active transfer sessions in memory.  
 
