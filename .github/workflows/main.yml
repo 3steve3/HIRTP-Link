@@ -21,10 +21,16 @@ jobs:
         run: docker compose up -d
 
       - name: Wait for simulation to run
-        run: sleep 120 # Wait for 2 minutes
+        run: sleep 120
 
-      - name: Display simulation logs
-        run: docker compose logs
+      - name: Save simulation logs
+        run: docker compose logs > simulation.log
+
+      - name: Upload logs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-logs
+          path: simulation.log
 
       - name: Cleanup containers
         if: always()
